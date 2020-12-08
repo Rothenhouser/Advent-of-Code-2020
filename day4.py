@@ -15,13 +15,6 @@ from collections import defaultdict
 from typing import Callable, Dict
 
 
-def matches(re_str):
-    def _matcher(string):
-        return bool(re.match(re.compile(re_str), string))
-
-    return _matcher
-
-
 def valid_height(s):
     try:
         n, suffix = int(s[:-2]), s[-2:]
@@ -60,29 +53,16 @@ VALIDATORS: Dict[str, Callable[[str], bool]] = defaultdict(
 )
 
 
-def handle_value_errors(fn, arg):
-    try:
-        return fn(arg)
-    except ValueError:
-        return False
-
-
 def evaluate(raw):
-    vals = []
     valids = 0
     for pp in raw.split("\n\n"):
         elems = pp.split()
         ppd = {k: v for k, v in map(lambda e: e.split(":"), elems)}
         # Subset operator apparently works with keys.
-        # if all(handle_value_errors(VALIDATORS[fname], ppd[fname]) for fname in ppd):
         if REQUIRED_FIELDS <= ppd.keys() and all(
             VALIDATORS[fname](ppd[fname]) for fname in ppd
         ):
-            vals.append(ppd["pid"])
-            # print(ppd["byr"])
             valids += 1
-    print(sorted(set(vals)))
-    print(set(map(len, vals)))
     return valids
 
 
